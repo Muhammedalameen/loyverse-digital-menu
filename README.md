@@ -32,23 +32,21 @@
 ```
 src/
 ├── app/
-│   ├── (public)/          # الصفحات العامة (القائمة للعميل)
-│   │   └── menu/[slug]/  # صفحة القائمة حسب المتجر
+│   ├── (public)/menu/[slug]/
 │   ├── (admin)/
 │   │   ├── dashboard/
 │   │   ├── stores/
 │   │   ├── menus/
 │   │   ├── integrations/
 │   │   └── settings/
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/
-│   ├── layout/            # Sidebar, Header, AdminShell
-│   └── ui/
+│   └── api/loyverse/
+│       ├── test/
+│       └── stores/
+├── components/layout/
 ├── lib/
-│   └── loyverse/
-├── types/
-└── hooks/
+│   ├── loyverse/
+│   └── storage/
+└── types/
 ```
 
 ## خطة التطوير (مراحل)
@@ -57,7 +55,7 @@ src/
 |--------|------|--------|
 | 1 | إعداد المشروع + الهيكل الأساسي | ✅ |
 | 2 | لوحة التحكم (Dashboard Layout) | ✅ |
-| 3 | إدارة المتاجر + ربط Loyverse | ⏳ |
+| 3 | إدارة المتاجر + ربط Loyverse | ✅ |
 | 4 | مزامنة القائمة من Loyverse | ⏳ |
 | 5 | واجهة القائمة للعميل | ⏳ |
 | 6 | تحسينات وتخصيصات | ⏳ |
@@ -65,34 +63,20 @@ src/
 ## التشغيل المحلي
 
 ```bash
-# تثبيت الحزم
 npm install
-
-# تشغيل بيئة التطوير
 npm run dev
 ```
 
-افتح [http://localhost:3000](http://localhost:3000)
+افتح [http://localhost:3000](http://localhost:3000) ثم `/dashboard`.
 
-ثم انتقل إلى `/dashboard` لرؤية لوحة التحكم.
+### اختبار ربط Loyverse
+1. اذهب إلى `/integrations`
+2. الصق Access Token من Loyverse Back Office (Settings → Access Tokens)
+3. اضغط «اختبار الاتصال»
+4. اذهب إلى `/stores` وأضف متجراً واربطه بمتجر Loyverse
 
-## متغيرات البيئة
-
-انسخ `.env.example` إلى `.env.local` وأكمل القيم:
-
-```env
-# Loyverse
-LOYVERSE_ACCESS_TOKEN=
-LOYVERSE_STORE_ID=
-
-# Database (لاحقاً)
-DATABASE_URL=
-
-# Auth (لاحقاً)
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=http://localhost:3000
-```
+> التوكن والمتاجر يُحفظان حالياً في localStorage (سيتم نقلها لقاعدة بيانات لاحقاً).
 
 ## المساهمة
 
-المشروع قيد التطوير النشط. سيتم إضافة المزيد من التفاصيل مع كل مرحلة.
+المشروع قيد التطوير النشط.
