@@ -34,16 +34,20 @@ src/
 ├── app/
 │   ├── (public)/          # الصفحات العامة (القائمة للعميل)
 │   │   └── menu/[slug]/  # صفحة القائمة حسب المتجر
-│   ├── (admin)/           # لوحة التحكم
-│   │   └── dashboard/     # الرئيسية + باقي الصفحات
+│   ├── (admin)/
+│   │   ├── dashboard/
+│   │   ├── stores/
+│   │   ├── menus/
+│   │   ├── integrations/
+│   │   └── settings/
 │   ├── layout.tsx
-│   └── page.tsx           # الصفحة الرئيسية
+│   └── page.tsx
 ├── components/
-│   ├── layout/            # Sidebar, Header, etc.
-│   └── ui/                # مكونات واجهة عامة
+│   ├── layout/            # Sidebar, Header, AdminShell
+│   └── ui/
 ├── lib/
-│   └── loyverse/          # تكامل Loyverse API
-├── types/                 # تعريفات TypeScript
+│   └── loyverse/
+├── types/
 └── hooks/
 ```
 
@@ -52,7 +56,7 @@ src/
 | المرحلة | الوصف | الحالة |
 |--------|------|--------|
 | 1 | إعداد المشروع + الهيكل الأساسي | ✅ |
-| 2 | لوحة التحكم (Dashboard Layout) | ⏳ |
+| 2 | لوحة التحكم (Dashboard Layout) | ✅ |
 | 3 | إدارة المتاجر + ربط Loyverse | ⏳ |
 | 4 | مزامنة القائمة من Loyverse | ⏳ |
 | 5 | واجهة القائمة للعميل | ⏳ |
@@ -69,6 +73,8 @@ npm run dev
 ```
 
 افتح [http://localhost:3000](http://localhost:3000)
+
+ثم انتقل إلى `/dashboard` لرؤية لوحة التحكم.
 
 ## متغيرات البيئة
 
