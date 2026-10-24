@@ -1,7 +1,6 @@
 /**
  * Loyverse API Client
  * Docs: https://developer.loyverse.com/docs/
- * Auth: Authorization: Bearer <personal_access_token>
  */
 
 const LOYVERSE_API_BASE = "https://api.loyverse.com/v1.0";
@@ -16,6 +15,67 @@ export interface LoyverseStore {
   country_code?: string;
   phone_number?: string;
   description?: string;
+}
+
+export interface LoyverseCategory {
+  id: string;
+  name: string;
+  color?: string;
+  created_at?: string;
+  deleted_at?: string | null;
+}
+
+export interface LoyverseVariant {
+  variant_id?: string;
+  item_id?: string;
+  sku?: string;
+  barcode?: string;
+  price?: number;
+  cost?: number;
+  default_pricing_type?: string;
+  default_price?: number | null;
+  stores?: Array<{ store_id: string; price?: number; available_for_sale?: boolean }>;
+}
+
+export interface LoyverseItem {
+  id: string;
+  handle?: string;
+  item_name: string;
+  description?: string;
+  reference_id?: string;
+  category_id?: string | null;
+  track_stock?: boolean;
+  sold_by_weight?: boolean;
+  is_composite?: boolean;
+  use_production?: boolean;
+  primary_supplier_id?: string | null;
+  tax_ids?: string[];
+  modifiers_ids?: string[];
+  modifier_ids?: string[];
+  form?: string;
+  color?: string;
+  image_url?: string;
+  option1_name?: string | null;
+  option2_name?: string | null;
+  option3_name?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+  variants?: LoyverseVariant[];
+}
+
+export interface LoyverseModifierOption {
+  id?: string;
+  name: string;
+  price?: number;
+}
+
+export interface LoyverseModifier {
+  id: string;
+  name: string;
+  options?: LoyverseModifierOption[];
+  created_at?: string;
+  deleted_at?: string | null;
 }
 
 export class LoyverseClient {
@@ -41,11 +101,8 @@ export class LoyverseClient {
       let message = `Loyverse API Error (${res.status})`;
       try {
         const body = await res.json();
-        if (body?.errors?.[0]?.details) {
-          message = body.errors[0].details;
-        } else if (body?.message) {
-          message = body.message;
-        }
+        if (body?.errors?.[0]?.details) message = body.errors[0].details;
+        else if (body?.message) message = body.message;
       } catch {
         // ignore
       }
@@ -53,6 +110,22 @@ export class LoyverseClient {
     }
 
     return res.json();
+  }
+
+  private async fetchAll<T>(endpoint: string, listKey: string, limit = 250): Promise<T[]> {
+    const results: T[] = [];
+    let cursor: string | undefined;
+
+    do {
+      const sep = endpoint.includes("?") ? "&" : "?";
+      const url = `${endpoint}${sep}limit=${limit}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`;
+      const data = (await this.request<Record<string, unknown>>(url)) as Record<string, unknown>;
+      const page = (data[listKey] as T[]) || [];
+      results.push(...page);
+      cursor = (data.cursor as string) || undefined;
+    } while (cursor);
+
+    return results;
   }
 
   async testConnection(): Promise<{ ok: true; storesCount: number }> {
@@ -64,14 +137,41 @@ export class LoyverseClient {
     return this.request<{ stores: LoyverseStore[] }>("/stores");
   }
 
-  async getCategories(storeId?: string) {
-    const query = storeId ? `?store_ids=${storeId}` : "";
-    return this.request<{ categories: any[] }>(`/categories${query}`);
+  async getCategories(): Promise<LoyverseCategory[]> {
+    return this.fetchAll<LoyverseCategory>("/categories", "categories");
   }
 
-  async getItems(storeId?: string) {
-    const query = storeId ? `?store_ids=${storeId}` : "";
-    return this.request<{ items: any[] }>(`/items${query}`);
+  async getItems(storeId?: string): Promise<LoyverseItem[]> {
+    const base = storeId ? `/items?store_id=${encodeURIComponent(storeId)}` : "/items";
+    return this.fetchAll<LoyverseItem>(base, "items");
+  }
+
+  async getModifiers(): Promise<LoyverseModifier[]> {
+    return this.fetchAll<LoyverseModifier>("/modifiers", "modifiers");
+  }
+
+  async syncMenu(storeId?: string) {
+    const [categories, items, modifiers] = await Promise.all([
+      this.getCategories(),
+      this.getItems(storeId),
+      this.getModifiers(),
+    ]);
+
+    const activeCategories = categories.filter((c) => !c.deleted_at);
+    const activeItems = items.filter((i) => !i.deleted_at);
+    const activeModifiers = modifiers.filter((m) => !m.deleted_at);
+
+    return {
+      categories: activeCategories,
+      items: activeItems,
+      modifiers: activeModifiers,
+      syncedAt: new Date().toISOString(),
+      counts: {
+        categories: activeCategories.length,
+        items: activeItems.length,
+        modifiers: activeModifiers.length,
+      },
+    };
   }
 }
 
