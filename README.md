@@ -33,19 +33,15 @@
 src/
 ├── app/
 │   ├── (public)/menu/[slug]/
-│   ├── (admin)/
-│   │   ├── dashboard/
-│   │   ├── stores/
-│   │   ├── menus/
-│   │   ├── integrations/
-│   │   └── settings/
+│   ├── (admin)/ ... dashboard, stores, menus, integrations, settings
 │   └── api/loyverse/
 │       ├── test/
-│       └── stores/
+│       ├── stores/
+│       └── sync/
 ├── components/layout/
 ├── lib/
 │   ├── loyverse/
-│   └── storage/
+│   └── storage/   # settings + menu cache
 └── types/
 ```
 
@@ -56,7 +52,7 @@ src/
 | 1 | إعداد المشروع + الهيكل الأساسي | ✅ |
 | 2 | لوحة التحكم (Dashboard Layout) | ✅ |
 | 3 | إدارة المتاجر + ربط Loyverse | ✅ |
-| 4 | مزامنة القائمة من Loyverse | ⏳ |
+| 4 | مزامنة القائمة من Loyverse | ✅ |
 | 5 | واجهة القائمة للعميل | ⏳ |
 | 6 | تحسينات وتخصيصات | ⏳ |
 
@@ -69,13 +65,12 @@ npm run dev
 
 افتح [http://localhost:3000](http://localhost:3000) ثم `/dashboard`.
 
-### اختبار ربط Loyverse
-1. اذهب إلى `/integrations`
-2. الصق Access Token من Loyverse Back Office (Settings → Access Tokens)
-3. اضغط «اختبار الاتصال»
-4. اذهب إلى `/stores` وأضف متجراً واربطه بمتجر Loyverse
+### تدفق العمل
+1. `/integrations` — الصق Access Token واختبر الاتصال
+2. `/stores` — أضف متجراً واربطه بمتجر Loyverse
+3. `/menus` — اضغط **مزامنة الآن** لجلب الأقسام والأصناف والتعديلات
 
-> التوكن والمتاجر يُحفظان حالياً في localStorage (سيتم نقلها لقاعدة بيانات لاحقاً).
+> البيانات تُحفظ حالياً في localStorage (سيتم نقلها لقاعدة بيانات لاحقاً).
 
 ## المساهمة
 
